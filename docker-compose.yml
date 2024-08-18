@@ -1,0 +1,35 @@
+services:
+  mysql-container:
+    container_name: mysql-container
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=helloworld
+      - MYSQL_DATABASE=test-db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - spring-demo-network
+
+  spring-boot-app:
+    build: .
+    container_name: spring-demo
+    image: spring/demo
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-container:3306/test-db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=helloworld
+    ports:
+      - "8088:8080"
+    depends_on:
+      - mysql-container
+    networks:
+      - spring-demo-network
+
+volumes:
+  mysql_data:
+
+networks:
+  spring-demo-network:
+    driver: bridge
